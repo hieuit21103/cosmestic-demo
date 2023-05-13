@@ -1,0 +1,86 @@
+function showFloatForm(element, form) {
+    var showFloatBtn = document.getElementById(element);
+    var floatForm = document.getElementById(form);
+
+    showFloatBtn.addEventListener("click", function() {
+        floatForm.style.display = 'block';
+    });
+}
+
+function sendDataToPHP(data,url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.timeout =10000;
+    xhr.ontimeout = function () {
+        console.log("Timeout!");
+    };
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log(xhr.responseText);
+        }else{
+            console.log(xhr.readyState);
+        }
+    };
+    var jsonData = JSON.stringify({data: data});
+    xhr.send(jsonData);
+}
+
+function addProduct(){
+    var modal = document.getElementById("product-modal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("product-modal-trigger");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on the button, open the modal
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    const sqlite3 = require('sqlite3').verbose();
+    const db = sqlite3.Database('./database/database.sqlite');
+    // When the form is submitted, add the product to the list
+
+    var form = modal.querySelector("form");
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        // Get the form data
+        var image = form.elements["image"].files[0];
+        var name = form.elements["name"].value;
+        var price = form.elements["price"].value;
+        var quantity = form.elements["quantity"].value;
+        var type = form.elements["type"].value;
+
+        // Create a new product object
+        var product = {
+            image: URL.createObjectURL(image),
+            name: name,
+            price: price,
+            quantity: quantity,
+            type: type
+        };
+
+        // Reset the form
+        form.reset();
+        modal.style.display = "none";
+
+        // Insert the product into the databaset
+        db.Run("INSERT INTO PRODUCTS (IMAGE, NAME, PRICE, QUANTITY, TYPE) VALUES (?,?,?,?,?)",[])
+});
+}
